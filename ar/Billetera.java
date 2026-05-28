@@ -5,10 +5,10 @@ import java.util.List;
 
 public class Billetera {
 	
-	private HashMap<String, String> cuentas ;
-	private HashMap<String, String> usuarios ;
-	private HashMap<String, String> actividades ;
-	private HashMap<String, String> empresas ;
+	private HashMap<String, String> cuentas;
+	private HashMap<String, String> usuarios;
+	private HashMap<String, String> actividades;
+	private HashMap<String, Empresa> empresas;
 	//-----------------------------------------------------------------------------------
 	/**
      * [Nuevo]
@@ -22,11 +22,9 @@ public class Billetera {
      * @param nombreContacto El nombre de la persona de contacto.
      */
 	 void registrarEmpresa(String cuit, String nombreFantasia, String telefono, String email, String nombreContacto){
-	
-	 
-
-	 
-	
+		 Empresa empresa = new Empresa(nombreFantasia, telefono, cuit, email, nombreContacto);
+		 
+		 empresas.put(cuit, empresa);
 	 }
 	 /**
 	     * [Nuevo]
@@ -39,10 +37,10 @@ public class Billetera {
 	     *                      registrado aún en el sistema).
 	     */
 	    void agregarPersonaAutorizada(String cuitEmpresa, String dniAutorizado) {
-	    
+	    	Empresa empresa = empresas.get(cuitEmpresa);
+	    	if (empresa == null) throw new RuntimeException("No existe la empresa.");
 	    	
-	    	
-	    
+	    	empresa.autorizarDni(dniAutorizado);
 	    }
 	  
 	    	
@@ -58,7 +56,7 @@ public class Billetera {
     
 
 	    void registrarUsuario(String dni, String nombre, String telefono, String email) {
-	    	
+	    	Persona usuario = new Persona()
 	    
 	    }
 	    
