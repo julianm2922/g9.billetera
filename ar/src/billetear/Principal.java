@@ -1,4 +1,4 @@
-package ar.edu.ungs.billetera;
+package billete.ar;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,4 +1,5 @@
-package ar.edu.ungs.billetera;
+// package ar.edu.ungs.billetera;
+package billetear;
 
 import org.junit.Before;
 import org.junit.Test;

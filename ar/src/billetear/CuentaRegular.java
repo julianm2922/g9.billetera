@@ -1,7 +1,13 @@
 package billete.ar;
 
 public class CuentaRegular extends Cuenta {
-    private final double montoMaximo = 500000.00d;
+	
+    public CuentaRegular(String alias, Usuario propietario) {
+		super(alias, propietario);
+		// TODO Auto-generated constructor stub
+	}
+
+	private final double montoMaximo = 500000.00d;
 
     @Override
     public void depositar(double monto) {

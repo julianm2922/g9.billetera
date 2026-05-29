@@ -13,6 +13,7 @@ public class Cuenta {
 
         this.alias = alias;
         this.propietario = propietario;
+        this.cvu = Utilitarios.generarSiguienteCvu();
     }
 
     public String cvu() { 
@@ -51,7 +52,7 @@ public class Cuenta {
     public void agregarInversion();
     */
 
-    public __toString() {
+    public String __toString() {
         return new StringBuilder(this.getClass())
             .append(" (cvu: \"")
             .append(cvu)
@@ -66,7 +67,7 @@ public class Cuenta {
     }
     
     /** PRIVADOS */
-    private validar(String alias) throws RuntimeException {
+    private void validarAlias(String alias) throws RuntimeException {
         if (!(
             alias != null && 
             alias.matches("^[a-z0-9.]+$") && 

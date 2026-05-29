@@ -1,4 +1,4 @@
-package billete.ar;
+package billetear;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 public class Billetera {
 	
 	private HashMap<String, String> cuentas;
-	private HashMap<String, String> usuarios;
-	private HashMap<String, String> actividades;
+	private HashMap<String, Usuario> usuarios;
+	private HashMap<String, Actividad> actividades;
 	private HashMap<String, Empresa> empresas;
 	//-----------------------------------------------------------------------------------
 	/**
@@ -37,10 +37,12 @@ public class Billetera {
 	     *                      registrado aún en el sistema).
 	     */
 	    void agregarPersonaAutorizada(String cuitEmpresa, String dniAutorizado) {
-	    	Empresa empresa = empresas.get(cuitEmpresa);
-	    	if (empresa == null) throw new RuntimeException("No existe la empresa.");
+	    	// Empresa empresa = empresas.get(cuitEmpresa);
+	    	if (!empresas.containsKey(cuitEmpresa)) throw new RuntimeException("No existe la empresa.");
 	    	
-	    	empresa.autorizarDni(dniAutorizado);
+	    	// empresa.autorizarDni(dniAutorizado);
+	    	Persona persona = usuarios.get(dniAutorizado);
+	    	persona.autorizarCuit(cuitEmpresa);
 	    }
 	  
 	    	
@@ -56,8 +58,9 @@ public class Billetera {
     
 
 	    void registrarUsuario(String dni, String nombre, String telefono, String email) {
-	    	Persona usuario = new Persona()
+	    	Persona usuario = new Persona(nombre, telefono, dni, email);
 	    
+	    	usuarios.put(dni, usuario);
 	    }
 	    
 	    /**
@@ -70,8 +73,10 @@ public class Billetera {
 	     */
 	    	
 	    String crearCuentaRegular(String dniUsuario, String alias) {
-	    	
-	    	return "cuenta regular";
+	    	CuentaRegular cta = new CuentaRegular(alias, usuarios.get(dniUsuario));
+	    	String cvu = cta.cvu();
+	    	cuentas.put(cvu, cta);
+	    	return cvu;
 	    }
 
 	    /**
@@ -84,10 +89,13 @@ public class Billetera {
 	     *                        los requisitos mínimos).
 	     * @return El CVU de la cuenta creada.
 	     */
-	    	
-	    	
 	    String crearCuentaPremium(String dniUsuario, String alias, double depositoInicial) {
-
+	    	CuentaPremium cta = new CuentaPremium(alias, usuarios.get(dniUsuario), depositoInicial);
+	    	String cvu = cta.cvu();
+	    	cuentas.put(cvu, cta);
+	    	return cvu;
+	    }
+	    
 	    /**
 	     * 2) Crea una nueva cuenta de tipo corporativa vinculada a una empresa y a un
 	     * usuario autorizado.
@@ -100,11 +108,14 @@ public class Billetera {
 	     * @param cuitEmpresa El CUIT de la empresa a la que pertenece la cuenta.
 	     * @return El CVU de la cuenta creada.
 	     */
-	    	return "cuenta premiun";
+	    String crearCuentaCorporativa(String dniUsuario, String alias, String cuitEmpresa) {
+	    	CuentaCorporativa cta = new CuentaCorporativa(alias, usuarios.get(dniUsuario), cuitEmpresa);
+	    	String cvu = cta.cvu();
+	    	cuentas.put(cvu, cta);
+	    	return cvu;
 	    	
 	    }
-	    String crearCuentaCorporativa(String dniUsuario, String alias, String cuitEmpresa) {
-
+	    
 	    /**
 	     * 3) Obtiene una lista con los identificadores (CVU o alias) de todas las
 	     * cuentas asociadas a un usuario.
@@ -116,11 +127,10 @@ public class Billetera {
 	     * @param dniUsuario El DNI del usuario.
 	     * @return Una lista de cadenas de texto representando las cuentas del usuario.
 	     */
-	    return "cuenta coorporativa";
+	    List<String> obtenerCuentas(String dniUsuario) {
 	    	
+	    	return ;
 	    }
-	    
-	    List<String> obtenerCuentas(String dniUsuario){
 
 	    /**
 	     * 4) Consulta el saldo disponible de una cuenta específica.
@@ -129,9 +139,6 @@ public class Billetera {
 	     * @param cvu El CVU de la cuenta a consultar.
 	     * @return El monto correspondiente al saldo disponible.
 	     */
-	    	 return ;
-	    	
-	    }
 	    double obtenerSaldoDisponible(String cvu) {
 
 	    /**
@@ -147,7 +154,19 @@ public class Billetera {
 	    }
 	    
 	    void realizarTransferencia(String cvuOrigen, String cvuDestino, double monto) {
-
+	    	Cuenta cuenta1 = cuentas.get(cvuOrigen);
+	    	Cuenta cuenta2 = cuentas.get(cvuDestino);
+	    	
+	    	try {
+	    		cuenta1.extraer(monto);
+	    		cuenta2.depositar(monto);
+	    		Transferencia.registrar('transferencia', monto, cuenta1.cvu, cuenta1.propietario().dni(), new LocalDate(), true, 'OK');
+	    	} catch (RuntimeException e) {
+	    		Transferencia.registrar('transferencia', monto, cuenta1.cvu, cuenta1.propietario().dni(), new LocalDate(), false, e.getMessage());
+	    	}
+	    	
+	    }
+	    
 	    /**
 	     * 6) Genera una nueva inversión de renta fija desde una cuenta.
 	     * Lanza error si el usuario o la cuenta no existe, o si algun dato es inválido.
@@ -158,7 +177,6 @@ public class Billetera {
 	     * @param plazoDias El plazo en días de la inversión.
 	     * @return El identificador único de la inversión realizada.
 	     */
-	    }
 	    int realizarInversionRentaFija(String dni, String cvu, double monto, int plazoDias) {
 
 	    /**
@@ -246,7 +264,7 @@ public class Billetera {
 	    }
 	    
 	    List<String> consultarHistorialGlobal(){
-
+	    }
 	    /**
 	     * 8) Obtiene el historial de actividades asociado a una cuenta específica.
 	     * Con el mismo formato que en 7) historial global
@@ -256,9 +274,10 @@ public class Billetera {
 	     * @param cvu El CVU de la cuenta a consultar.
 	     * @return Una lista con los actividades realizados en la cuenta.
 	     */
-}
+
 	    List<String> consultarHistorialCuenta(String cvu){
 
+	    }
 	    /**
 	     * 8) Obtiene el historial de actividades de un usuario a lo largo de todas
 	     * sus cuentas.
